@@ -19,6 +19,8 @@ fn void main() {
     io::printfn("DEBUG: before free: %s", *z);
     defer mem::free(z);
     io::printfn("DEBUG: after free: %s", *z);
+
+    io::printfn("%s", append_char());
 }
 
 fn DString foo() {
@@ -28,4 +30,12 @@ fn DString foo() {
     temp.appendf("foo");
 
     return temp;
+}
+
+fn DString append_char()
+{
+    DString tmp = dstring::temp();
+
+    tmp.append_char('c');
+    return tmp;
 }
