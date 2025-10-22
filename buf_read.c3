@@ -11,27 +11,35 @@ fn void main()
 
 fn void read_chunk(String input)
 {
+    // NOTE: This obviously is from CRLF Index
     usz chunk_offset = 0;
     usz current_offset = chunk_offset;
     usz crlf_size = 2;
 
+    // TODO: If we can, avoid while (true)
     while (true)
     {
         DString chunk_size_str = dstring::temp();
-        while (input[current_offset] != '\r')
+
+        // TODO: Create a test to test this with a malformed input
+        while (current_offset < input.len && input[current_offset] != '\r')
         {
             chunk_size_str.append_char(input[current_offset]);
             current_offset += 1;
         }
-        ulong chunk_size = chunk_size_str.str_view().to_uint(base: 16)!!;
 
+        // TODO: SHould I check current_offset to see if its over input.len?
+
+        // TODO: Instead of unwrap, check the error and we can use it as an early exit if we have malformed data received
+        ulong? chunk_size = chunk_size_str.str_view().to_uint(base: 16);
+        if (catch excuse = chunk_size) break;
         if (chunk_size == 0) break;
 
         current_offset += crlf_size;
 
         DString chunk_buf = dstring::temp();
         usz j = 0;
-        while (j < chunk_size)
+        while (current_offset + j < input.len && j < chunk_size)
         {
             char current = input[current_offset + j];
             chunk_buf.append_char(current);
