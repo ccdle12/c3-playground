@@ -16,8 +16,7 @@ fn void read_chunk(String input)
     usz current_offset = chunk_offset;
     usz crlf_size = 2;
 
-    // TODO: If we can, avoid while (true)
-    while (true)
+    while (current_offset < input.len)
     {
         DString chunk_size_str = dstring::temp();
 
@@ -28,22 +27,22 @@ fn void read_chunk(String input)
             current_offset += 1;
         }
 
-        // TODO: SHould I check current_offset to see if its over input.len?
-
         // TODO: Instead of unwrap, check the error and we can use it as an early exit if we have malformed data received
         ulong? chunk_size = chunk_size_str.str_view().to_uint(base: 16);
+
+        // TODO: Return errors instead of just breaking
         if (catch excuse = chunk_size) break;
         if (chunk_size == 0) break;
 
         current_offset += crlf_size;
 
         DString chunk_buf = dstring::temp();
-        usz j = 0;
-        while (current_offset + j < input.len && j < chunk_size)
+        usz i = 0;
+        while (current_offset + i < input.len && i < chunk_size)
         {
-            char current = input[current_offset + j];
+            char current = input[current_offset + i];
             chunk_buf.append_char(current);
-            if (current != '\r' || current != '\n') j += 1;
+            if (current != '\r' || current != '\n') i += 1;
         }
 
         io::printfn("chunk buf after reading the first chunk size: %s", chunk_buf.str_view());
